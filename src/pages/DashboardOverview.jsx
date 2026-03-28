@@ -3,7 +3,7 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement, Filler
 } from 'chart.js';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import { 
@@ -21,7 +21,7 @@ import {
   ExclamationTriangleIcon 
 } from '@heroicons/react/24/outline';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement, Filler);
 
 const StatCard = ({ title, value, color, icon }) => (
   <div className="glass-card stat-card animate-slide-up" style={{
