@@ -90,6 +90,26 @@ export default function DashboardOverview() {
             <StatCard title={t.total_income} value={`৳${data.office.total_income}`} color="var(--primary)" icon={<CurrencyDollarIcon />} />
             <StatCard title="Total Due" value={`৳${data.office.total_due}`} color="var(--danger)" icon={<ArrowTrendingDownIcon />} />
           </div>
+
+          <div className="glass-card" style={{marginTop:'2rem', height:'450px', padding:'1.5rem'}}>
+             <h3 style={{marginBottom:'1rem'}}>Office Earnings Trend (Last 12 Months)</h3>
+             <Line 
+               data={{
+                 labels: data.office.chart.labels,
+                 datasets: [
+                   {
+                     label: 'Monthly Income (৳)',
+                     data: data.office.chart.income,
+                     borderColor: '#7C3AED',
+                     backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                     fill: true,
+                     tension: 0.4,
+                   }
+                 ]
+               }} 
+               options={{responsive:true, maintainAspectRatio:false}} 
+             />
+          </div>
         </>
       )}
 
