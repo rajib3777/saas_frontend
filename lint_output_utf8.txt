@@ -1,0 +1,419 @@
+﻿
+> saas-frontend@0.0.0 lint
+> eslint .
+
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\components\DashboardLayout.jsx
+  31:9  error  'location' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\AdsPage.jsx
+  35:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  33 |
+  34 |   const load = async () => setAds((await api.get('shop/ads/')).data);
+> 35 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  36 |
+  37 |   const handleSubmit = async (e) => {
+  38 |     e.preventDefault();  react-hooks/set-state-in-effect
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\ClientsPage.jsx
+  12:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  10 |
+  11 |   const load = async () => setClients((await api.get('office/clients/')).data);
+> 12 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  13 |
+  14 |   const handleSubmit = async (e) => {
+  15 |     e.preventDefault();  react-hooks/set-state-in-effect
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\DashboardOverview.jsx
+   54:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  52 |
+  53 |   useEffect(() => {
+> 54 |     fetchDashboard();
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  55 |     if (user?.subscription_type === 'shop') {
+  56 |       fetchChart();
+  57 |     }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             react-hooks/set-state-in-effect
+   78:10  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  76 |       <h3 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>Overview</h3>
+  77 |       <div className="grid-cards">
+> 78 |         <StatCard title={t.total_employees} value={data.employees?.total} color="var(--primary)" />
+     |          ^^^^^^^^ This component is created during render
+  79 |         <StatCard title="Monthly Salary Exp." value={`αº│${data.employees?.total_monthly_salary}`} color="var(--secondary)" />
+  80 |         <StatCard title="Yearly Salary Exp." value={`αº│${data.employees?.total_yearly_salary}`} color="#6366F1" />
+  81 |       </div>
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                     react-hooks/static-components
+   79:10  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  77 |       <div className="grid-cards">
+  78 |         <StatCard title={t.total_employees} value={data.employees?.total} color="var(--primary)" />
+> 79 |         <StatCard title="Monthly Salary Exp." value={`αº│${data.employees?.total_monthly_salary}`} color="var(--secondary)" />
+     |          ^^^^^^^^ This component is created during render
+  80 |         <StatCard title="Yearly Salary Exp." value={`αº│${data.employees?.total_yearly_salary}`} color="#6366F1" />
+  81 |       </div>
+  82 |
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                                                                                                      react-hooks/static-components
+   80:10  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  78 |         <StatCard title={t.total_employees} value={data.employees?.total} color="var(--primary)" />
+  79 |         <StatCard title="Monthly Salary Exp." value={`αº│${data.employees?.total_monthly_salary}`} color="var(--secondary)" />
+> 80 |         <StatCard title="Yearly Salary Exp." value={`αº│${data.employees?.total_yearly_salary}`} color="#6366F1" />
+     |          ^^^^^^^^ This component is created during render
+  81 |       </div>
+  82 |
+  83 |       {/* Office Stats */}
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                                                                                                              react-hooks/static-components
+   88:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  86 |           <h3 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>Office Summary</h3>
+  87 |           <div className="grid-cards">
+> 88 |             <StatCard title={t.active_clients} value={data.office.total_clients} color="#10B981" />
+     |              ^^^^^^^^ This component is created during render
+  89 |             <StatCard title={t.total_income} value={`αº│${data.office.total_income}`} color="var(--primary)" />
+  90 |             <StatCard title="Total Due" value={`αº│${data.office.total_due}`} color="var(--danger)" />
+  91 |           </div>
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                           react-hooks/static-components
+   89:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  87 |           <div className="grid-cards">
+  88 |             <StatCard title={t.active_clients} value={data.office.total_clients} color="#10B981" />
+> 89 |             <StatCard title={t.total_income} value={`αº│${data.office.total_income}`} color="var(--primary)" />
+     |              ^^^^^^^^ This component is created during render
+  90 |             <StatCard title="Total Due" value={`αº│${data.office.total_due}`} color="var(--danger)" />
+  91 |           </div>
+  92 |         </>
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                                                                                                          react-hooks/static-components
+   90:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  88 |             <StatCard title={t.active_clients} value={data.office.total_clients} color="#10B981" />
+  89 |             <StatCard title={t.total_income} value={`αº│${data.office.total_income}`} color="var(--primary)" />
+> 90 |             <StatCard title="Total Due" value={`αº│${data.office.total_due}`} color="var(--danger)" />
+     |              ^^^^^^^^ This component is created during render
+  91 |           </div>
+  92 |         </>
+  93 |       )}
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/static-components
+  100:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+   98 |           <h3 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>Shop & Retail Summary</h3>
+   99 |           <div className="grid-cards">
+> 100 |             <StatCard title={t.monthly_revenue} value={`αº│${data.shop.monthly_revenue}`} color="var(--secondary)" />
+      |              ^^^^^^^^ This component is created during render
+  101 |             <StatCard title={t.profit_loss} value={`αº│${data.shop.monthly_profit}`} color={data.shop.monthly_profit >= 0 ? 'var(--success)' : 'var(--danger)'} />
+  102 |             <StatCard title="αª¼αª┐αª£αºìαª₧αª╛αª¬αª¿ αªÑαºçαªòαºç αª▓αª╛αª¡" value={`${data.shop.total_ad_spend > 0 ? (((data.shop.total_ad_revenue - data.shop.total_ad_spend)/data.shop.total_ad_spend)*100).toFixed(0) : 0}%`} color="#F472B6" />
+  103 |             <StatCard title="Low Stock" value={data.shop.low_stock_products} color="var(--danger)" />
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>  react-hooks/static-components
+  101:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+   99 |           <div className="grid-cards">
+  100 |             <StatCard title={t.monthly_revenue} value={`αº│${data.shop.monthly_revenue}`} color="var(--secondary)" />
+> 101 |             <StatCard title={t.profit_loss} value={`αº│${data.shop.monthly_profit}`} color={data.shop.monthly_profit >= 0 ? 'var(--success)' : 'var(--danger)'} />
+      |              ^^^^^^^^ This component is created during render
+  102 |             <StatCard title="αª¼αª┐αª£αºìαª₧αª╛αª¬αª¿ αªÑαºçαªòαºç αª▓αª╛αª¡" value={`${data.shop.total_ad_spend > 0 ? (((data.shop.total_ad_revenue - data.shop.total_ad_spend)/data.shop.total_ad_spend)*100).toFixed(0) : 0}%`} color="#F472B6" />
+  103 |             <StatCard title="Low Stock" value={data.shop.low_stock_products} color="var(--danger)" />
+  104 |           </div>
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                   react-hooks/static-components
+  102:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  100 |             <StatCard title={t.monthly_revenue} value={`αº│${data.shop.monthly_revenue}`} color="var(--secondary)" />
+  101 |             <StatCard title={t.profit_loss} value={`αº│${data.shop.monthly_profit}`} color={data.shop.monthly_profit >= 0 ? 'var(--success)' : 'var(--danger)'} />
+> 102 |             <StatCard title="αª¼αª┐αª£αºìαª₧αª╛αª¬αª¿ αªÑαºçαªòαºç αª▓αª╛αª¡" value={`${data.shop.total_ad_spend > 0 ? (((data.shop.total_ad_revenue - data.shop.total_ad_spend)/data.shop.total_ad_spend)*100).toFixed(0) : 0}%`} color="#F472B6" />
+      |              ^^^^^^^^ This component is created during render
+  103 |             <StatCard title="Low Stock" value={data.shop.low_stock_products} color="var(--danger)" />
+  104 |           </div>
+  105 |
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                          react-hooks/static-components
+  103:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  101 |             <StatCard title={t.profit_loss} value={`αº│${data.shop.monthly_profit}`} color={data.shop.monthly_profit >= 0 ? 'var(--success)' : 'var(--danger)'} />
+  102 |             <StatCard title="αª¼αª┐αª£αºìαª₧αª╛αª¬αª¿ αªÑαºçαªòαºç αª▓αª╛αª¡" value={`${data.shop.total_ad_spend > 0 ? (((data.shop.total_ad_revenue - data.shop.total_ad_spend)/data.shop.total_ad_spend)*100).toFixed(0) : 0}%`} color="#F472B6" />
+> 103 |             <StatCard title="Low Stock" value={data.shop.low_stock_products} color="var(--danger)" />
+      |              ^^^^^^^^ This component is created during render
+  104 |           </div>
+  105 |
+  106 |           <div className="grid-cards" style={{marginTop:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(400px, 1fr))'}}>
+
+  62 |   if (!data) return <div>Loading dashboard...</div>;
+  63 |
+> 64 |   const StatCard = ({ title, value, color }) => (
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     <div className="glass-card animate-slide-up" style={{borderTop:`4px solid ${color}`}}>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |       <h4 style={{color:'var(--text-muted)', marginBottom:'0.5rem'}}>{title}</h4>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 67 |       <h2 style={{fontSize:'2rem', color:'var(--text-main)'}}>{value}</h2>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |   );
+     | ^^^^ The component is created during render here
+  70 |
+  71 |   return (
+  72 |     <div>                                                                                                                react-hooks/static-components
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\EmployeesPage.jsx
+  12:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  10 |
+  11 |   const load = async () => setEmployees((await api.get('employees/list/')).data);
+> 12 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  13 |
+  14 |   const handleSubmit = async (e) => {
+  15 |     e.preventDefault();  react-hooks/set-state-in-effect
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\InventoryPage.jsx
+  14:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  12 |
+  13 |   const load = async () => setProducts((await api.get('shop/products/')).data);
+> 14 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  15 |
+  16 |   const handleProductSubmit = async (e) => {
+  17 |     e.preventDefault();  react-hooks/set-state-in-effect
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\ParcelsPage.jsx
+  24:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |
+  23 |   const load = async () => setParcels((await api.get('shop/parcels/')).data);
+> 24 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  25 |
+  26 |   const handleSubmit = async (e) => {
+  27 |     e.preventDefault();  react-hooks/set-state-in-effect
+
+C:\Users\Admin\.gemini\antigravity\scratch\saas-frontend\src\pages\SalesPage.jsx
+  29:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  27 |     setProducts((await api.get('shop/products/')).data);
+  28 |   };
+> 29 |   useEffect(() => { load() }, []);
+     |                     ^^^^ Avoid calling setState() directly within an effect
+  30 |
+  31 |   const handeProductChange = (e) => {
+  32 |     const pId = e.target.value;  react-hooks/set-state-in-effect
+
+Γ£û 18 problems (18 errors, 0 warnings)
+
