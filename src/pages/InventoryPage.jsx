@@ -37,10 +37,23 @@ export default function InventoryPage() {
 
   const handleStockSubmit = async (e) => {
     e.preventDefault();
-    await api.post('shop/stock/', stockForm);
+    // Ensure quantity is sent as a Number to avoid potential 500 errors in the backend
+    const payload = {
+        ...stockForm,
+        quantity: Number(stockForm.quantity)
+    };
+    await api.post('shop/stock/', payload);
     setStockForm({ product: '', quantity: '' });
     alert('Stock updated successfully!');
     load();
+  };
+
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    // Derive base URL from VITE_API_URL (removes /api/ suffix)
+    const baseUrl = import.meta.env.VITE_API_URL.split('/api/')[0];
+    return `${baseUrl}${path}`;
   };
 
   return (
@@ -118,7 +131,7 @@ export default function InventoryPage() {
                 <td>
                   {p.image ? (
                     <img 
-                      src={p.image.startsWith('http') ? p.image : `http://127.0.0.1:8000${p.image}`} 
+                      src={getImageUrl(p.image)} 
                       alt={p.name} 
                       style={{width:'50px', height:'50px', objectFit:'cover', borderRadius:'8px'}} 
                     />
