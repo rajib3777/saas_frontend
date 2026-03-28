@@ -31,8 +31,13 @@ export default function ClientsPage() {
 
   const handleMarkAsPaid = async (id) => {
     if(window.confirm('Mark this client as fully paid? This will create a payment record for the remaining balance.')) {
-        await api.post(`office/clients/${id}/mark-as-paid/`);
-        load();
+        try {
+            await api.post(`office/clients/${id}/mark-as-paid/`);
+            alert('Balance settled successfully! ✅');
+            load();
+        } catch (err) {
+            alert('Error settling balance.');
+        }
     }
   };
 

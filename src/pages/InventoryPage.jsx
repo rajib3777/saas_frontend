@@ -8,12 +8,28 @@ export default function InventoryPage() {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: '', buying_price: '', selling_price: '' });
   const [imageFile, setImageFile] = useState(null);
   const [stockForm, setStockForm] = useState({ product: '', quantity: '' });
 
   const load = async () => setProducts((await api.get('shop/products/')).data);
   useEffect(() => { load() }, []);
+
+  const handleEdit = (p) => {
+    setEditingId(p.id);
+    setForm({ name: p.name, buying_price: p.buying_price, selling_price: p.selling_price });
+    setShowAdd(true);
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ name: '', buying_price: '', selling_price: '' });
+    setShowAdd(false);
+    setImageFile(null);
+  };
 
   const handleProductSubmit = async (e) => {
     e.preventDefault();
@@ -25,14 +41,24 @@ export default function InventoryPage() {
       formData.append('image', imageFile);
     }
     
-    await api.post('shop/products/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    
-    setShowAdd(false);
-    setForm({ name: '', buying_price: '', selling_price: '' });
-    setImageFile(null);
-    load();
+    try {
+        if (editingId) {
+            await api.patch(`shop/products/${editingId}/`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert('Product updated successfully! ✅');
+        } else {
+            await api.post('shop/products/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert('Product added successfully! ✅');
+        }
+        
+        cancelEdit();
+        load();
+    } catch (err) {
+        alert('Error saving product. Please try again.');
+    }
   };
 
   const handleStockSubmit = async (e) => {
@@ -42,10 +68,14 @@ export default function InventoryPage() {
         ...stockForm,
         quantity: Number(stockForm.quantity)
     };
-    await api.post('shop/stock/', payload);
-    setStockForm({ product: '', quantity: '' });
-    alert('Stock updated successfully!');
-    load();
+    try {
+        await api.post('shop/stock/', payload);
+        setStockForm({ product: '', quantity: '' });
+        alert('Stock updated successfully! 📦');
+        load();
+    } catch (err) {
+        alert('Error updating stock.');
+    }
   };
 
   const getImageUrl = (path) => {
@@ -86,7 +116,7 @@ export default function InventoryPage() {
         <h2>{t.inventory} Management</h2>
         <div style={{display:'flex', gap:'1rem'}}>
           <button className="btn-secondary" onClick={() => window.print()}>🖨️ Print Report</button>
-          <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
+          <button className="btn-primary" onClick={() => { if(showAdd && editingId) cancelEdit(); else setShowAdd(!showAdd); }}>
             {showAdd ? t.cancel : `+ Add Product`}
           </button>
         </div>
@@ -94,13 +124,19 @@ export default function InventoryPage() {
 
       <div style={{display:'flex', gap:'2rem', alignItems:'flex-start'}}>
         {showAdd && (
-          <form onSubmit={handleProductSubmit} className="glass-card animate-slide-up" style={{flex:1, marginBottom:'2rem'}}>
-            <h3 style={{marginBottom:'1rem', color:'var(--primary)'}}>New Product</h3>
+          <form onSubmit={handleProductSubmit} className="glass-card animate-slide-up" style={{flex:1, marginBottom:'2rem', border:'1px solid var(--primary)'}}>
+            <h3 style={{marginBottom:'1rem', color:'var(--primary)'}}>{editingId ? '📝 Edit Product' : '✨ New Product'}</h3>
             <div className="form-group"><label>Product Name</label><input required className="input-field" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} /></div>
             <div className="form-group"><label>Buying Price (cost)</label><input type="number" required className="input-field" value={form.buying_price} onChange={e=>setForm({...form, buying_price:e.target.value})} /></div>
             <div className="form-group"><label>Selling Price</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
-            <div className="form-group"><label>Product Image</label><input type="file" className="input-field" onChange={e=>setImageFile(e.target.files[0])} accept="image/*" /></div>
-            <button type="submit" className="btn-primary" style={{marginTop:'1rem'}}>{t.save}</button>
+            <div className="form-group">
+                <label>Product Image {editingId && '(Leave blank to keep current)'}</label>
+                <input type="file" className="input-field" onChange={e=>setImageFile(e.target.files[0])} accept="image/*" />
+            </div>
+            <div style={{display:'flex', gap:'1rem', marginTop:'1rem'}}>
+                <button type="submit" className="btn-primary" style={{flex:1}}>{editingId ? 'Update' : t.save}</button>
+                {editingId && <button type="button" className="btn-secondary" onClick={cancelEdit} style={{flex:1}}>Cancel</button>}
+            </div>
           </form>
         )}
 
@@ -122,7 +158,7 @@ export default function InventoryPage() {
           <table className="data-table">
           <thead>
             <tr>
-              <th>Image</th><th>Product Name</th><th>Cost Price</th><th>Selling Price</th><th>Est. Profit/Unit</th><th>Current Stock</th>
+              <th>Image</th><th>Product Name</th><th>Cost Price</th><th>Selling Price</th><th>Est. Profit/Unit</th><th>Current Stock</th><th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -144,6 +180,9 @@ export default function InventoryPage() {
                 <td style={{color: p.stock < 5 ? 'var(--danger)' : 'var(--text-main)', fontWeight:'bold'}}>
                   {p.stock} units
                   {p.stock < 5 && <span style={{marginLeft:'8px', fontSize:'0.8rem'}}>⚠️ Low</span>}
+                </td>
+                <td>
+                    <button onClick={()=>handleEdit(p)} className="btn-secondary" style={{padding:'4px 8px', fontSize:'0.8rem'}}>Edit</button>
                 </td>
               </tr>
             ))}
