@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import DashboardOverview from './pages/DashboardOverview';
 import EmployeesPage from './pages/EmployeesPage';
+import AttendanceReport from './pages/AttendanceReport';
 import ClientsPage from './pages/ClientsPage';
 import InventoryPage from './pages/InventoryPage';
 import SalesPage from './pages/SalesPage';
@@ -30,6 +31,7 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
           <Route index element={<DashboardOverview />} />
           <Route path="employees" element={<EmployeesPage />} />
+          <Route path="attendance-report" element={<AttendanceReport />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="inventory" element={<InventoryPage />} />
           <Route path="sales" element={<SalesPage />} />

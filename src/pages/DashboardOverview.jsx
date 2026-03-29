@@ -71,37 +71,107 @@ export default function DashboardOverview() {
 
 
   const [checkIn, setCheckIn] = useState({ location: '', message: '' });
+  const [todayRecord, setTodayRecord] = useState(null);
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
+
+  const fetchTodayRecord = async () => {
+    if (user?.role !== 'moderator') return;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const res = await api.get('employees/attendance/', { params: { date: today } });
+      if (res.data.length > 0) setTodayRecord(res.data[0]);
+    } catch (err) {}
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+    fetchTodayRecord();
+  }, [user]);
+
   const handleCheckIn = async (e) => {
     e.preventDefault();
+    setLoadingAttendance(true);
     try {
       const d = new Date();
       await api.post('employees/attendance/', {
          date: d.toISOString().split('T')[0],
-         entry_time: d.toTimeString().split(' ')[0], // Sending local time HH:MM:SS
+         entry_time: d.toTimeString().split(' ')[0],
          location: checkIn.location,
          message: checkIn.message
       });
       alert('Checked in successfully!');
       setCheckIn({location: '', message: ''});
+      fetchTodayRecord();
     } catch(err) {
-      alert('Error: You may have already checked in today.');
+      alert('Error: Submission failed. You might have already checked in today.');
+    } finally {
+      setLoadingAttendance(false);
     }
   };
 
-  if (!data) return <div>Loading dashboard...</div>;
+  const handleCheckOut = async () => {
+    setLoadingAttendance(true);
+    try {
+      await api.post('employees/attendance/checkout/');
+      alert('Checked out successfully!');
+      fetchTodayRecord();
+    } catch(err) {
+      alert('Error checking out.');
+    } finally {
+      setLoadingAttendance(false);
+    }
+  };
+
+  if (!data) return <div style={{padding:'2rem', textAlign:'center'}}>Loading dashboard...</div>;
 
   if (user?.role === 'moderator') {
     return (
       <div className="animate-fade-in">
-        <h2 style={{color:'var(--primary)', marginBottom:'1rem'}}>Moderator Dashboard</h2>
-        <div className="glass-card" style={{padding:'2rem'}}>
-          <h3 style={{marginBottom:'1rem'}}>Daily Setup & Check-in</h3>
-          <p style={{color:'var(--text-muted)'}}>Log your starting location and status message for your Admin.</p>
-          <form onSubmit={handleCheckIn} style={{marginTop:'1.5rem', maxWidth:'500px'}}>
-             <div className="form-group"><label>Current Location</label><input required className="input-field" value={checkIn.location} onChange={e=>setCheckIn({...checkIn, location: e.target.value})} placeholder="e.g. Uttara Branch" /></div>
-             <div className="form-group"><label>Message / Note</label><textarea required className="input-field" rows="3" value={checkIn.message} onChange={e=>setCheckIn({...checkIn, message: e.target.value})} placeholder="What is the plan for today?" /></div>
-             <button type="submit" className="btn-primary" style={{marginTop:'1rem', width:'100%'}}>Submit Check-in</button>
-          </form>
+        <h2 style={{color:'var(--primary)', marginBottom:'1.5rem'}}>Moderator Dashboard</h2>
+        
+        <div className="grid-cards" style={{marginBottom:'2rem'}}>
+          <div className="glass-card" style={{padding:'2rem'}}>
+            <h3 style={{marginBottom:'1rem'}}>Daily Attendance</h3>
+            
+            {!todayRecord ? (
+              <>
+                <p style={{color:'var(--text-muted)'}}>Log your starting location and status message for today.</p>
+                <form onSubmit={handleCheckIn} style={{marginTop:'1.5rem', maxWidth:'500px'}}>
+                   <div className="form-group"><label>Current Location</label><input required className="input-field" value={checkIn.location} onChange={e=>setCheckIn({...checkIn, location: e.target.value})} placeholder="e.g. Uttara Branch" /></div>
+                   <div className="form-group"><label>Message / Note</label><textarea required className="input-field" rows="3" value={checkIn.message} onChange={e=>setCheckIn({...checkIn, message: e.target.value})} placeholder="What is the plan for today?" /></div>
+                   <button type="submit" disabled={loadingAttendance} className="btn-primary" style={{marginTop:'1rem', width:'100%'}}>
+                     {loadingAttendance ? 'Submitting...' : 'Submit Check-in'}
+                   </button>
+                </form>
+              </>
+            ) : (
+              <div style={{marginTop:'1.5rem'}}>
+                <div className="glass-card" style={{background:'rgba(34,197,94,0.1)', borderLeft:'4px solid #22C55E', padding:'1rem', marginBottom:'1.5rem'}}>
+                  <h4 style={{color:'#166534', margin:0}}>✓ Checked In</h4>
+                  <p style={{margin:'5px 0 0 0', fontSize:'0.9rem'}}>Time: <strong>{todayRecord.entry_time.substring(0, 5)}</strong> | Status: <strong style={{color: todayRecord.is_late ? 'var(--danger)' : 'var(--success)'}}>{todayRecord.is_late ? 'LATE' : 'ON-TIME'}</strong></p>
+                </div>
+                
+                {!todayRecord.exit_time ? (
+                  <div style={{textAlign:'center'}}>
+                    <p style={{color:'var(--text-muted)', marginBottom:'1rem'}}>Don't forget to check out before leaving!</p>
+                    <button onClick={handleCheckOut} disabled={loadingAttendance} className="btn-secondary" style={{width:'100%', maxWidth:'300px', borderColor:'var(--primary)', color:'var(--primary)'}}>
+                      {loadingAttendance ? 'Processing...' : '📤 Click to Check-out'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="glass-card" style={{background:'rgba(99,102,241,0.1)', borderLeft:'4px solid #6366F1', padding:'1rem'}}>
+                    <h4 style={{color:'#3730A3', margin:0}}>✓ Checked Out</h4>
+                    <p style={{margin:'5px 0 0 0', fontSize:'0.9rem'}}>Time: <strong>{todayRecord.exit_time.substring(0, 5)}</strong> | Total Duration: <strong>{todayRecord.working_hours} hours</strong></p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="glass-card" style={{padding:'2rem', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', textAlign:'center'}}>
+             <div style={{fontSize:'3rem', marginBottom:'1rem'}}>🚀</div>
+             <h3>Ready for Work?</h3>
+             <p style={{color:'var(--text-muted)'}}>Your performance data is shared with your Admin in real-time. Keep up the good work!</p>
+          </div>
         </div>
       </div>
     );
