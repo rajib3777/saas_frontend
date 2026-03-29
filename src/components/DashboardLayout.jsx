@@ -42,7 +42,7 @@ export default function DashboardLayout() {
   }, [isSidebarOpen]);
 
   const isShop = user?.subscription_type === 'shop';
-
+  const isModerator = user?.role === 'moderator';
 
 
   return (
@@ -61,18 +61,19 @@ export default function DashboardLayout() {
         
         <div className="sidebar-nav" style={{flex: 1, overflowY: 'auto', marginBottom: '1rem', paddingRight: '0.5rem'}}>
           <NavItem to="/dashboard" label={t.dashboard} icon="📊" />
-          <NavItem to="/dashboard/employees" label={t.employees} icon="👥" />
+          {!isModerator && <NavItem to="/dashboard/employees" label={t.employees} icon="👥" />}
           
-          {user?.subscription_type === 'office' && (
+          {user?.subscription_type === 'office' && !isModerator && (
             <NavItem to="/dashboard/clients" label={t.clients} icon="🏢" />
           )}
 
           {isShop && (
             <>
-              <NavItem to="/dashboard/inventory" label={t.inventory} icon="📦" />
-              <NavItem to="/dashboard/sales" label={t.sales} icon="💰" />
+              {!isModerator && <NavItem to="/dashboard/inventory" label={t.inventory} icon="📦" />}
+              {!isModerator && <NavItem to="/dashboard/sales" label={t.sales} icon="💰" />}
               <NavItem to="/dashboard/parcels" label={t.parcels} icon="🚚" />
-              <NavItem to="/dashboard/ads" label={t.ads} icon="📢" />
+              {!isModerator && <NavItem to="/dashboard/ads" label={t.ads} icon="📢" />}
+              {!isModerator && <NavItem to="/dashboard/withdrawals" label="Withdrawals" icon="💳" />}
             </>
           )}
         </div>

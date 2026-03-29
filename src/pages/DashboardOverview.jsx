@@ -57,8 +57,11 @@ export default function DashboardOverview() {
   const [data, setData] = useState(null);
 
   const fetchDashboard = async () => {
-    const res = await api.get('dashboard/');
-    setData(res.data);
+    if (user?.role === 'moderator') return setData({ moderator: true });
+    try {
+      const res = await api.get('dashboard/');
+      setData(res.data);
+    } catch(err) {}
   };
 
   useEffect(() => {
@@ -67,7 +70,42 @@ export default function DashboardOverview() {
 
 
 
+  const [checkIn, setCheckIn] = useState({ location: '', message: '' });
+  const handleCheckIn = async (e) => {
+    e.preventDefault();
+    try {
+      const d = new Date();
+      await api.post('employees/attendance/', {
+         date: d.toISOString().split('T')[0],
+         entry_time: d.toTimeString().split(' ')[0], // Sending local time HH:MM:SS
+         location: checkIn.location,
+         message: checkIn.message
+      });
+      alert('Checked in successfully!');
+      setCheckIn({location: '', message: ''});
+    } catch(err) {
+      alert('Error: You may have already checked in today.');
+    }
+  };
+
   if (!data) return <div>Loading dashboard...</div>;
+
+  if (user?.role === 'moderator') {
+    return (
+      <div className="animate-fade-in">
+        <h2 style={{color:'var(--primary)', marginBottom:'1rem'}}>Moderator Dashboard</h2>
+        <div className="glass-card" style={{padding:'2rem'}}>
+          <h3 style={{marginBottom:'1rem'}}>Daily Setup & Check-in</h3>
+          <p style={{color:'var(--text-muted)'}}>Log your starting location and status message for your Admin.</p>
+          <form onSubmit={handleCheckIn} style={{marginTop:'1.5rem', maxWidth:'500px'}}>
+             <div className="form-group"><label>Current Location</label><input required className="input-field" value={checkIn.location} onChange={e=>setCheckIn({...checkIn, location: e.target.value})} placeholder="e.g. Uttara Branch" /></div>
+             <div className="form-group"><label>Message / Note</label><textarea required className="input-field" rows="3" value={checkIn.message} onChange={e=>setCheckIn({...checkIn, message: e.target.value})} placeholder="What is the plan for today?" /></div>
+             <button type="submit" className="btn-primary" style={{marginTop:'1rem', width:'100%'}}>Submit Check-in</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

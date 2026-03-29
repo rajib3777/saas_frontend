@@ -3,27 +3,55 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
+  Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement
 } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+const statusStyle = {
+  delivered: { background: 'rgba(16,185,129,0.15)', color: '#10B981', border: '1px solid #10B981' },
+  returned:  { background: 'rgba(239,68,68,0.15)',  color: '#EF4444', border: '1px solid #EF4444'  },
+  pending:   { background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid #F59E0B'  },
+};
+
 export default function ParcelsPage() {
   const t = useTranslation();
   const { user } = useAuth();
+  const isModerator = user?.role === 'moderator';
+
   const [parcels, setParcels] = useState([]);
+  const [moderators, setModerators] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ courier_name: '', tracking_number: '', customer_name: '', cost_price: '', selling_price: '', status: 'pending' });
 
-  const load = async () => setParcels((await api.get('shop/parcels/')).data);
-  useEffect(() => { load() }, []);
+  // Filters
+  const [filterStatus, setFilterStatus]   = useState('');
+  const [filterDate,   setFilterDate]     = useState('');
+  const [filterMod,    setFilterMod]      = useState('');
+
+  const buildParams = () => {
+    const params = {};
+    if (filterStatus) params.status    = filterStatus;
+    if (filterDate)   params.date      = filterDate;
+    if (filterMod)    params.added_by  = filterMod;
+    return params;
+  };
+
+  const load = async () => {
+    const res = await api.get('shop/parcels/', { params: buildParams() });
+    setParcels(res.data);
+  };
+
+  const loadModerators = async () => {
+    try {
+      const res = await api.get('employees/list/');
+      setModerators(res.data.filter(e => e.has_account));
+    } catch {}
+  };
+
+  useEffect(() => { load(); loadModerators(); }, []);
+  useEffect(() => { load(); }, [filterStatus, filterDate, filterMod]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,30 +62,36 @@ export default function ParcelsPage() {
   };
 
   const updateStatus = async (id, status) => {
+    if (isModerator) return; // moderators cannot edit
     await api.patch(`shop/parcels/${id}/`, { status });
     load();
   };
 
+  const delivered = parcels.filter(p => p.status === 'delivered').length;
+  const pending   = parcels.filter(p => p.status === 'pending').length;
+  const returned  = parcels.filter(p => p.status === 'returned').length;
+
   return (
     <div>
+      {/* Print only area */}
       <div className="print-area">
         <h1>{user?.business_name} - {t.parcel_report}</h1>
-        <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '20px'}}>
-          <thead>
-            <tr style={{borderBottom: '2px solid #000'}}>
-              <th style={{padding:'8px', textAlign:'left'}}>ID & Date</th>
-              <th style={{padding:'8px', textAlign:'left'}}>Customer</th>
-              <th style={{padding:'8px', textAlign:'left'}}>Courier</th>
-              <th style={{padding:'8px', textAlign:'right'}}>Profit/Loss</th>
-              <th style={{padding:'8px', textAlign:'center'}}>Status</th>
-            </tr>
-          </thead>
+        <table style={{width:'100%', borderCollapse:'collapse', marginTop:'20px'}}>
+          <thead><tr style={{borderBottom:'2px solid #000'}}>
+            <th style={{padding:'8px', textAlign:'left'}}>Date</th>
+            <th style={{padding:'8px', textAlign:'left'}}>Customer</th>
+            <th style={{padding:'8px', textAlign:'left'}}>Courier</th>
+            <th style={{padding:'8px', textAlign:'left'}}>Added By</th>
+            <th style={{padding:'8px', textAlign:'right'}}>Profit</th>
+            <th style={{padding:'8px', textAlign:'center'}}>Status</th>
+          </tr></thead>
           <tbody>
             {parcels.map(p => (
-              <tr key={p.id} style={{borderBottom: '1px solid #ccc'}}>
+              <tr key={p.id} style={{borderBottom:'1px solid #ccc'}}>
                 <td style={{padding:'8px'}}>{new Date(p.date).toLocaleDateString()}</td>
                 <td style={{padding:'8px'}}>{p.customer_name}</td>
                 <td style={{padding:'8px'}}>{p.courier_name} ({p.tracking_number})</td>
+                <td style={{padding:'8px'}}>{p.added_by_name || '—'}</td>
                 <td style={{padding:'8px', textAlign:'right'}}>{p.profit >= 0 ? '+' : '-'}৳{Math.abs(p.profit)}</td>
                 <td style={{padding:'8px', textAlign:'center'}}>{p.status.toUpperCase()}</td>
               </tr>
@@ -66,105 +100,157 @@ export default function ParcelsPage() {
         </table>
       </div>
 
-      <div className="no-print" style={{display:'flex', justifyContent:'space-between', marginBottom:'2rem'}}>
-        <h2>E-commerce Parcel Tracking</h2>
-        <div style={{display:'flex', gap:'1rem'}}>
-          <button className="btn-secondary" onClick={() => window.print()}>🖨️ Print Report</button>
-          <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
-            {showAdd ? t.cancel : `+ Add Parcel`}
-          </button>
+      {/* Main UI */}
+      <div className="no-print">
+        {/* Header */}
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem'}}>
+          <h2 style={{margin:0}}>📦 Parcel Tracking</h2>
+          <div style={{display:'flex', gap:'1rem'}}>
+            <button className="btn-secondary" onClick={() => window.print()}>🖨️ Print</button>
+            <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
+              {showAdd ? t.cancel : '+ Add Parcel'}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="grid-cards" style={{marginBottom:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))'}}>
-        <div className="glass-card" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-          <h3 style={{marginBottom:'1rem'}}>Delivery Status Distribution</h3>
-          <div style={{width:'250px'}}>
-            <Pie 
+        {/* Summary Cards */}
+        <div className="grid-cards" style={{marginBottom:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))'}}>
+          {[
+            { label: 'Delivered', count: delivered, color: '#10B981' },
+            { label: 'Pending',   count: pending,   color: '#F59E0B' },
+            { label: 'Returned',  count: returned,  color: '#EF4444' },
+            { label: 'Total',     count: parcels.length, color: 'var(--primary)' },
+          ].map(s => (
+            <div key={s.label} className="glass-card animate-slide-up" style={{borderLeft:`4px solid ${s.color}`, padding:'1.2rem'}}>
+              <div style={{color:'var(--text-muted)', fontSize:'0.8rem', textTransform:'uppercase', letterSpacing:'.5px'}}>{s.label}</div>
+              <div style={{fontSize:'2rem', fontWeight:'800', color:s.color}}>{s.count}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div className="glass-card" style={{marginBottom:'2rem', padding:'1.2rem'}}>
+          <h4 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>🔍 Search & Filter</h4>
+          <div className="grid-cards" style={{gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))'}}>
+            <div className="form-group">
+              <label>Status</label>
+              <select className="input-field" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="delivered">Delivered</option>
+                <option value="returned">Returned</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <input type="date" className="input-field" value={filterDate} onChange={e=>setFilterDate(e.target.value)} />
+            </div>
+            {!isModerator && (
+              <div className="form-group">
+                <label>Moderator</label>
+                <select className="input-field" value={filterMod} onChange={e=>setFilterMod(e.target.value)}>
+                  <option value="">All Moderators</option>
+                  {moderators.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="form-group" style={{display:'flex', alignItems:'flex-end'}}>
+              <button className="btn-secondary" style={{width:'100%'}} onClick={()=>{setFilterStatus('');setFilterDate('');setFilterMod('');}}>Clear Filters</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid-cards" style={{marginBottom:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))'}}>
+          <div className="glass-card" style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'1.5rem'}}>
+            <h3 style={{marginBottom:'1rem'}}>Status Distribution</h3>
+            <div style={{width:'240px'}}>
+              <Pie data={{
+                labels: ['Delivered', 'Pending', 'Returned'],
+                datasets: [{ data: [delivered, pending, returned], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }]
+              }} />
+            </div>
+          </div>
+          <div className="glass-card" style={{padding:'1.5rem'}}>
+            <h3 style={{marginBottom:'1rem'}}>Financial Summary (৳)</h3>
+            <Bar
               data={{
-                labels: ['Pending', 'Delivered', 'Returned'],
-                datasets: [{
-                  data: [
-                    parcels.filter(p => p.status === 'pending').length,
-                    parcels.filter(p => p.status === 'delivered').length,
-                    parcels.filter(p => p.status === 'returned').length,
-                  ],
-                  backgroundColor: ['#F59E0B', '#10B981', '#EF4444']
-                }]
+                labels: ['Total Cost', 'Total COD', 'Net Profit'],
+                datasets: [{ label: 'Amount', data: [
+                  parcels.reduce((a,p) => a + parseFloat(p.cost_price||0), 0),
+                  parcels.reduce((a,p) => a + parseFloat(p.selling_price||0), 0),
+                  parcels.reduce((a,p) => a + parseFloat(p.profit||0), 0),
+                ], backgroundColor: ['#6366F1','#34D399','#F472B6'] }]
               }}
+              options={{ responsive: true, plugins: { legend: { display: false } } }}
             />
           </div>
         </div>
-        <div className="glass-card">
-          <h3 style={{marginBottom:'1rem'}}>Financial Summary (৳)</h3>
-          <Bar 
-            data={{
-              labels: ['Total Cost', 'Total COD', 'Net Profit'],
-              datasets: [{
-                label: 'Amount',
-                data: [
-                  parcels.reduce((acc, p) => acc + parseFloat(p.cost_price), 0),
-                  parcels.reduce((acc, p) => acc + parseFloat(p.selling_price), 0),
-                  parcels.reduce((acc, p) => acc + parseFloat(p.profit), 0),
-                ],
-                backgroundColor: ['#6366F1', '#34D399', '#F472B6']
-              }]
-            }}
-            options={{ responsive: true, plugins: { legend: { display: false } } }}
-          />
-        </div>
-      </div>
 
-      {showAdd && (
-        <form onSubmit={handleSubmit} className="glass-card animate-slide-up" style={{marginBottom:'2rem'}}>
-          <div className="grid-cards">
-            <div className="form-group"><label>Customer Name</label><input required className="input-field" value={form.customer_name} onChange={e=>setForm({...form, customer_name:e.target.value})} /></div>
-            <div className="form-group"><label>Courier Service</label><input required className="input-field" value={form.courier_name} onChange={e=>setForm({...form, courier_name:e.target.value})} /></div>
-            <div className="form-group"><label>Tracking ID</label><input className="input-field" value={form.tracking_number} onChange={e=>setForm({...form, tracking_number:e.target.value})} /></div>
-            <div className="form-group"><label>Cost (Product + Delivery)</label><input type="number" required className="input-field" value={form.cost_price} onChange={e=>setForm({...form, cost_price:e.target.value})} /></div>
-            <div className="form-group"><label>COD Amount (Selling)</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
-          </div>
-          <button type="submit" className="btn-primary" style={{marginTop:'1rem'}}>{t.save}</button>
-        </form>
-      )}
+        {/* Add Form */}
+        {showAdd && (
+          <form onSubmit={handleSubmit} className="glass-card animate-slide-up" style={{marginBottom:'2rem'}}>
+            <h3 style={{marginBottom:'1.2rem'}}>Add New Parcel</h3>
+            {isModerator && (
+              <div className="glass-card" style={{marginBottom:'1rem', padding:'0.75rem', background:'rgba(124,58,237,0.08)', borderLeft:'3px solid var(--primary)'}}>
+                <small>📝 Added by: <strong>{user?.full_name}</strong> (Moderator)</small>
+              </div>
+            )}
+            <div className="grid-cards">
+              <div className="form-group"><label>Customer Name</label><input required className="input-field" value={form.customer_name} onChange={e=>setForm({...form, customer_name:e.target.value})} /></div>
+              <div className="form-group"><label>Courier Service</label><input required className="input-field" value={form.courier_name} onChange={e=>setForm({...form, courier_name:e.target.value})} /></div>
+              <div className="form-group"><label>Tracking ID</label><input className="input-field" value={form.tracking_number} onChange={e=>setForm({...form, tracking_number:e.target.value})} /></div>
+              <div className="form-group"><label>Cost (৳)</label><input type="number" required className="input-field" value={form.cost_price} onChange={e=>setForm({...form, cost_price:e.target.value})} /></div>
+              <div className="form-group"><label>COD Amount (৳)</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
+            </div>
+            <button type="submit" className="btn-primary" style={{marginTop:'1rem'}}>{t.save}</button>
+          </form>
+        )}
 
-      <div className="glass-card" style={{overflowX:'auto'}}>
-        <div className="table-responsive">
+        {/* Table */}
+        <div className="glass-card" style={{overflowX:'auto'}}>
           <table className="data-table">
-          <thead>
-            <tr>
-              <th>Date</th><th>Customer</th><th>Courier</th><th>Est. Profit</th><th>Status</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {parcels.map(p => (
-              <tr key={p.id}>
-                <td>{new Date(p.date).toLocaleDateString()}</td>
-                <td style={{fontWeight:'bold'}}>{p.customer_name}</td>
-                <td>{p.courier_name} <br/><small style={{color:'var(--text-muted)'}}>{p.tracking_number}</small></td>
-                <td style={{color: p.profit >= 0 ? 'var(--success)' : 'var(--danger)', fontWeight:'bold'}}>
-                  {p.profit >= 0 ? `${t.profit}: ` : `${t.loss}: `}৳{Math.abs(p.profit).toFixed(2)}
-                </td>
-                <td>
-                  <span style={{
-                    padding:'4px 10px', borderRadius:'12px', fontSize:'0.85rem', fontWeight:'bold',
-                    background: p.status === 'delivered' ? 'rgba(16,185,129,0.2)' : p.status === 'returned' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
-                    color: p.status === 'delivered' ? '#10B981' : p.status === 'returned' ? '#EF4444' : '#F59E0B'
-                  }}>
-                    {p.status.toUpperCase()}
-                  </span>
-                </td>
-                <td>
-                  <select className="input-field" style={{padding:'4px 8px'}} value={p.status} onChange={(e)=>updateStatus(p.id, e.target.value)}>
-                    <option value="pending">Pending</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="returned">Returned</option>
-                  </select>
-                </td>
+            <thead>
+              <tr>
+                <th>Date</th><th>Customer</th><th>Courier</th><th>Added By</th><th>Profit</th><th>Status</th>
+                {!isModerator && <th>Update Status</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {parcels.map(p => (
+                <tr key={p.id}>
+                  <td>{new Date(p.date).toLocaleDateString()}</td>
+                  <td style={{fontWeight:'bold'}}>{p.customer_name}</td>
+                  <td>{p.courier_name}<br/><small style={{color:'var(--text-muted)'}}>{p.tracking_number}</small></td>
+                  <td>
+                    {p.added_by_name
+                      ? <span style={{background:'rgba(124,58,237,0.15)', color:'var(--primary)', padding:'2px 8px', borderRadius:'10px', fontSize:'0.82rem'}}>{p.added_by_name}</span>
+                      : <span style={{color:'var(--text-muted)'}}>Admin</span>}
+                  </td>
+                  <td style={{color: p.profit >= 0 ? 'var(--success)' : 'var(--danger)', fontWeight:'bold'}}>
+                    {p.profit >= 0 ? '+' : ''}৳{parseFloat(p.profit).toFixed(2)}
+                  </td>
+                  <td>
+                    <span style={{padding:'4px 10px', borderRadius:'12px', fontSize:'0.82rem', fontWeight:'bold', ...statusStyle[p.status]}}>
+                      {p.status.toUpperCase()}
+                    </span>
+                  </td>
+                  {!isModerator && (
+                    <td>
+                      <select className="input-field" style={{padding:'4px 8px'}} value={p.status} onChange={e=>updateStatus(p.id, e.target.value)}>
+                        <option value="pending">Pending</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="returned">Returned</option>
+                      </select>
+                    </td>
+                  )}
+                </tr>
+              ))}
+              {parcels.length === 0 && <tr><td colSpan="7" style={{textAlign:'center', padding:'2rem', color:'var(--text-muted)'}}>No parcels found.</td></tr>}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

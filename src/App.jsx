@@ -10,6 +10,7 @@ import InventoryPage from './pages/InventoryPage';
 import SalesPage from './pages/SalesPage';
 import ParcelsPage from './pages/ParcelsPage';
 import AdsPage from './pages/AdsPage';
+import CourierWithdrawalsPage from './pages/CourierWithdrawalsPage';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -34,6 +35,7 @@ function App() {
           <Route path="sales" element={<SalesPage />} />
           <Route path="parcels" element={<ParcelsPage />} />
           <Route path="ads" element={<AdsPage />} />
+          <Route path="withdrawals" element={<CourierWithdrawalsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
