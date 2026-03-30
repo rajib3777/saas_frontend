@@ -29,25 +29,25 @@ export default function AttendanceReport() {
     }
   };
 
-  if (!employeeId) return <div>No employee selected.</div>;
-  if (loading && !report) return <div>Loading report...</div>;
+  if (!employeeId) return <div>{t.no_employee_selected}</div>;
+  if (loading && !report) return <div>{t.loading_report}</div>;
 
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ margin: 0, color: 'var(--primary)' }}>📅 Attendance Report</h2>
+          <h2 style={{ margin: 0, color: 'var(--primary)' }}>📅 {t.attendance_report_title}</h2>
           <h3 style={{ margin: 0, color: 'var(--text-muted)' }}>{report?.employee_name}</h3>
         </div>
         
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <select className="input-field" value={month} onChange={e => setMonth(e.target.value)}>
              {Array.from({length: 12}, (_, i) => (
-                <option key={i+1} value={i+1}>{new Date(2000, i).toLocaleString('default', { month: 'long' })}</option>
+                <option key={i+1} value={i+1}>{new Date(2000, i).toLocaleString(lang === 'bn' ? 'bn-BD' : 'en-US', { month: 'long' })}</option>
              ))}
           </select>
           <input type="number" className="input-field" style={{ width: '100px' }} value={year} onChange={e => setYear(e.target.value)} />
-          <button className="btn-secondary" onClick={() => window.print()}>🖨️ Print</button>
+          <button className="btn-secondary" onClick={() => window.print()}>🖨️ {lang === 'bn' ? 'প্রিন্ট' : 'Print'}</button>
         </div>
       </div>
 
@@ -55,15 +55,15 @@ export default function AttendanceReport() {
         <>
           <div className="grid-cards" style={{ marginBottom: '2rem' }}>
             <div className="glass-card" style={{ borderLeft: '4px solid var(--success)', padding: '1.2rem' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>On-Time</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>{t.ontime_label}</div>
               <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--success)' }}>{report.stats.ontime}</div>
             </div>
             <div className="glass-card" style={{ borderLeft: '4px solid var(--danger)', padding: '1.2rem' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Late</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>{t.late}</div>
               <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--danger)' }}>{report.stats.late}</div>
             </div>
             <div className="glass-card" style={{ borderLeft: '4px solid #94A3B8', padding: '1.2rem' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Missed</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase' }}>{t.missed_label}</div>
               <div style={{ fontSize: '2rem', fontWeight: '800', color: '#64748B' }}>{report.stats.miss}</div>
             </div>
           </div>
@@ -72,11 +72,11 @@ export default function AttendanceReport() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Entry Time</th>
-                  <th>Exit Time</th>
-                  <th>Work Hours</th>
+                  <th>{t.date}</th>
+                  <th>{t.status}</th>
+                  <th>{t.entry_time}</th>
+                  <th>{t.exit_time}</th>
+                  <th>{t.work_hours}</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,7 +88,7 @@ export default function AttendanceReport() {
                     </td>
                     <td>{day.entry ? day.entry.substring(0, 5) : '—'}</td>
                     <td>{day.exit ? day.exit.substring(0, 5) : '—'}</td>
-                    <td style={{ fontWeight: 'bold' }}>{day.hours > 0 ? `${day.hours}h` : '—'}</td>
+                    <td style={{ fontWeight: 'bold' }}>{day.hours > 0 ? `${day.hours}${t.hours_abbr}` : '—'}</td>
                   </tr>
                 ))}
               </tbody>

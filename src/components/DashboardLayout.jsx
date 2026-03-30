@@ -73,7 +73,7 @@ export default function DashboardLayout() {
               {!isModerator && <NavItem to="/dashboard/sales" label={t.sales} icon="💰" />}
               <NavItem to="/dashboard/parcels" label={t.parcels} icon="🚚" />
               {!isModerator && <NavItem to="/dashboard/ads" label={t.ads} icon="📢" />}
-              {!isModerator && <NavItem to="/dashboard/withdrawals" label="Withdrawals" icon="💳" />}
+              {!isModerator && <NavItem to="/dashboard/withdrawals" label={t.withdrawals} icon="💳" />}
             </>
           )}
         </div>
@@ -84,7 +84,7 @@ export default function DashboardLayout() {
             🏷️ {user?.subscription_type.toUpperCase()}
           </div>
           <button onClick={toggleLang} className="btn-secondary" style={{width:'100%', marginBottom:'0.5rem'}}>
-            {lang === 'en' ? 'বাংলা (BN)' : 'English (EN)'}
+            {lang === 'en' ? 'বাংলা' : 'English'}
           </button>
           <button onClick={logout} className="btn-secondary" style={{width:'100%', borderColor:'var(--danger)', color:'var(--danger)'}}>
             {t.logout}

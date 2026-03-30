@@ -31,7 +31,7 @@ export default function LandingPage() {
         <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}>
           <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} style={{color:'var(--text-main)', textDecoration:'none', fontWeight:'500'}}>{t.how_it_works || 'Flow'}</a>
           <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} style={{color:'var(--text-main)', textDecoration:'none', fontWeight:'500'}}>{t.pricing}</a>
-          <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} style={{color:'var(--text-main)', textDecoration:'none', fontWeight:'500'}}>FAQ</a>
+          <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} style={{color:'var(--text-main)', textDecoration:'none', fontWeight:'500'}}>{t.faq_title || 'FAQ'}</a>
           <button onClick={toggleLang} style={{background:'none', border:'none', cursor:'pointer', fontWeight:'bold', color:'var(--secondary)'}}>
             {lang === 'en' ? 'BN' : 'EN'}
           </button>
@@ -247,7 +247,7 @@ export default function LandingPage() {
         }}
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        title="Call Support"
+        title={lang === 'en' ? 'Call Support' : 'সাপোর্ট কল করুন'}
       >
         📞
       </a>

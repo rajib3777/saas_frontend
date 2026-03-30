@@ -102,7 +102,7 @@ export default function SalesPage() {
       )}
 
       <div className="no-print" style={{display:'flex', justifyContent:'space-between', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem'}}>
-        <h2>{t.profit_loss} & Sales Analytics</h2>
+        <h2>{t.profit_loss} {t.sales_analytics}</h2>
         <div style={{display:'flex', gap:'1rem', flexWrap:'wrap', alignItems:'center'}}>
           <input 
             type="month" 
@@ -116,19 +116,19 @@ export default function SalesPage() {
             <span style={{fontWeight:'bold', color:'var(--success)', fontSize:'1.2rem'}}>৳{filteredSales.reduce((acc,s)=>acc+s.profit, 0).toFixed(2)}</span>
           </div>
           <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
-            {showAdd ? t.cancel : `+ Record Sale`}
+            {showAdd ? t.cancel : `+ ${t.record_sale}`}
           </button>
         </div>
       </div>
 
       <div className="glass-card" style={{marginBottom:'2rem', padding:'1.5rem'}}>
-        <h3 style={{marginBottom:'1rem'}}>Daily Profit Trend (৳)</h3>
+        <h3 style={{marginBottom:'1rem'}}>{t.daily_profit_trend}</h3>
         <div style={{height:'350px'}}>
           <Line 
             data={{
               labels: [...new Set(filteredSales.map(s => s.date))].sort().map(d => new Date(d).toLocaleDateString()),
               datasets: [{
-                label: 'Profit (৳)',
+                label: `${t.profit} (৳)`,
                 data: [...new Set(filteredSales.map(s => s.date))].sort().map(date => {
                    return filteredSales.filter(s => s.date === date).reduce((acc, s) => acc + s.profit, 0);
                 }),
@@ -154,15 +154,15 @@ export default function SalesPage() {
       {showAdd && (
         <form onSubmit={handleSubmit} className="glass-card animate-slide-up" style={{marginBottom:'2rem'}}>
           <div className="grid-cards">
-            <div className="form-group"><label>Select Product</label>
+            <div className="form-group"><label>{t.select_product_label}</label>
               <select required className="input-field" value={form.product} onChange={handeProductChange}>
-                <option value="">-- Choose --</option>
-                {products.map(p => <option key={p.id} value={p.id}>{p.name} (Stock: {p.stock})</option>)}
+                <option value="">{t.choose_option}</option>
+                {products.map(p => <option key={p.id} value={p.id}>{p.name} ({t.stock_label}: {p.stock})</option>)}
               </select>
             </div>
-            <div className="form-group"><label>Quantity Sold</label><input type="number" required className="input-field" value={form.quantity} onChange={e=>setForm({...form, quantity:e.target.value})} /></div>
-            <div className="form-group"><label>Selling Price (per unit)</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
-            <div className="form-group"><label>Cost Price (hidden ref)</label><input type="number" disabled className="input-field" value={form.buying_price} /></div>
+            <div className="form-group"><label>{t.qty_sold}</label><input type="number" required className="input-field" value={form.quantity} onChange={e=>setForm({...form, quantity:e.target.value})} /></div>
+            <div className="form-group"><label>{t.selling_price_label} ({lang === 'bn' ? 'প্রতি ইউনিট' : 'per unit'})</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
+            <div className="form-group"><label>{t.cost_price_ref}</label><input type="number" disabled className="input-field" value={form.buying_price} /></div>
           </div>
           <button type="submit" className="btn-primary" style={{marginTop:'1rem'}}>{t.save}</button>
         </form>
@@ -173,7 +173,7 @@ export default function SalesPage() {
           <table className="data-table">
           <thead>
             <tr>
-              <th>Date</th><th>Product</th><th>Qty</th><th>Sold At</th><th>Total Revenue</th><th>Profit/Loss</th><th>Actions</th>
+              <th>{t.date}</th><th>{t.product}</th><th>{t.qty}</th><th>{t.sold_at}</th><th>{t.total_revenue}</th><th>{t.profit_loss}</th><th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +186,7 @@ export default function SalesPage() {
                   {s.profit >= 0 ? `${t.profit}: ` : `${t.loss}: `}৳{Math.abs(s.profit).toFixed(2)}
                 </td>
                 <td>
-                  <button className="btn-secondary" style={{padding:'4px 10px', fontSize:'0.8rem'}} onClick={() => handlePrint(s)}>🖨️ Print</button>
+                  <button className="btn-secondary" style={{padding:'4px 10px', fontSize:'0.8rem'}} onClick={() => handlePrint(s)}>🖨️ {lang === 'bn' ? 'প্রিন্ট' : 'Print'}</button>
                 </td>
               </tr>
             ))}

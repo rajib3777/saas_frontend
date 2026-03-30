@@ -104,11 +104,11 @@ export default function ParcelsPage() {
       <div className="no-print">
         {/* Header */}
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem'}}>
-          <h2 style={{margin:0}}>📦 Parcel Tracking</h2>
+          <h2 style={{margin:0}}>📦 {t.parcel_tracking}</h2>
           <div style={{display:'flex', gap:'1rem'}}>
-            <button className="btn-secondary" onClick={() => window.print()}>🖨️ Print</button>
+            <button className="btn-secondary" onClick={() => window.print()}>🖨️ {lang === 'bn' ? 'প্রিন্ট' : 'Print'}</button>
             <button className="btn-primary" onClick={() => setShowAdd(!showAdd)}>
-              {showAdd ? t.cancel : '+ Add Parcel'}
+              {showAdd ? t.cancel : `+ ${t.add_parcel}`}
             </button>
           </div>
         </div>
@@ -116,10 +116,10 @@ export default function ParcelsPage() {
         {/* Summary Cards */}
         <div className="grid-cards" style={{marginBottom:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))'}}>
           {[
-            { label: 'Delivered', count: delivered, color: '#10B981' },
-            { label: 'Pending',   count: pending,   color: '#F59E0B' },
-            { label: 'Returned',  count: returned,  color: '#EF4444' },
-            { label: 'Total',     count: parcels.length, color: 'var(--primary)' },
+            { label: t.delivered, count: delivered, color: '#10B981' },
+            { label: t.pending,   count: pending,   color: '#F59E0B' },
+            { label: t.returned,  count: returned,  color: '#EF4444' },
+            { label: t.total,     count: parcels.length, color: 'var(--primary)' },
           ].map(s => (
             <div key={s.label} className="glass-card animate-slide-up" style={{borderLeft:`4px solid ${s.color}`, padding:'1.2rem'}}>
               <div style={{color:'var(--text-muted)', fontSize:'0.8rem', textTransform:'uppercase', letterSpacing:'.5px'}}>{s.label}</div>
@@ -130,15 +130,15 @@ export default function ParcelsPage() {
 
         {/* Filters */}
         <div className="glass-card" style={{marginBottom:'2rem', padding:'1.2rem'}}>
-          <h4 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>🔍 Search & Filter</h4>
+          <h4 style={{marginBottom:'1rem', color:'var(--text-muted)'}}>{t.search_filter}</h4>
           <div className="grid-cards" style={{gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))'}}>
             <div className="form-group">
-              <label>Status</label>
+              <label>{t.status}</label>
               <select className="input-field" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
-                <option value="">All</option>
-                <option value="pending">Pending</option>
-                <option value="delivered">Delivered</option>
-                <option value="returned">Returned</option>
+                <option value="">{t.all}</option>
+                <option value="pending">{t.pending}</option>
+                <option value="delivered">{t.delivered}</option>
+                <option value="returned">{t.returned}</option>
               </select>
             </div>
             <div className="form-group">
@@ -147,9 +147,9 @@ export default function ParcelsPage() {
             </div>
             {!isModerator && (
               <div className="form-group">
-                <label>Moderator</label>
+                <label>{lang === 'bn' ? 'মডারেটর' : 'Moderator'}</label>
                 <select className="input-field" value={filterMod} onChange={e=>setFilterMod(e.target.value)}>
-                  <option value="">All Moderators</option>
+                  <option value="">{t.all_moderators}</option>
                   {moderators.map(m => (
                     <option key={m.id} value={m.user_account_id}>{m.name}</option>
                   ))}
@@ -157,7 +157,7 @@ export default function ParcelsPage() {
               </div>
             )}
             <div className="form-group" style={{display:'flex', alignItems:'flex-end'}}>
-              <button className="btn-secondary" style={{width:'100%'}} onClick={()=>{setFilterStatus('');setFilterDate('');setFilterMod('');}}>Clear Filters</button>
+              <button className="btn-secondary" style={{width:'100%'}} onClick={()=>{setFilterStatus('');setFilterDate('');setFilterMod('');}}>{t.clear_filters}</button>
             </div>
           </div>
         </div>
@@ -165,20 +165,20 @@ export default function ParcelsPage() {
         {/* Charts Row */}
         <div className="grid-cards" style={{marginBottom:'2rem', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))'}}>
           <div className="glass-card" style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'1.5rem'}}>
-            <h3 style={{marginBottom:'1rem'}}>Status Distribution</h3>
+            <h3 style={{marginBottom:'1rem'}}>{t.status_distribution}</h3>
             <div style={{width:'240px'}}>
               <Pie data={{
-                labels: ['Delivered', 'Pending', 'Returned'],
+                labels: [t.delivered, t.pending, t.returned],
                 datasets: [{ data: [delivered, pending, returned], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }]
               }} />
             </div>
           </div>
           <div className="glass-card" style={{padding:'1.5rem'}}>
-            <h3 style={{marginBottom:'1rem'}}>Financial Summary (৳)</h3>
+            <h3 style={{marginBottom:'1rem'}}>{t.financial_summary}</h3>
             <Bar
               data={{
-                labels: ['Total Cost', 'Total COD', 'Net Profit'],
-                datasets: [{ label: 'Amount', data: [
+                labels: [t.total_cost, t.total_cod, t.net_profit],
+                datasets: [{ label: t.amount, data: [
                   parcels.reduce((a,p) => a + parseFloat(p.cost_price||0), 0),
                   parcels.reduce((a,p) => a + parseFloat(p.selling_price||0), 0),
                   parcels.reduce((a,p) => a + parseFloat(p.profit||0), 0),
@@ -192,18 +192,18 @@ export default function ParcelsPage() {
         {/* Add Form */}
         {showAdd && (
           <form onSubmit={handleSubmit} className="glass-card animate-slide-up" style={{marginBottom:'2rem'}}>
-            <h3 style={{marginBottom:'1.2rem'}}>Add New Parcel</h3>
+            <h3 style={{marginBottom:'1.2rem'}}>{t.add_parcel}</h3>
             {isModerator && (
               <div className="glass-card" style={{marginBottom:'1rem', padding:'0.75rem', background:'rgba(124,58,237,0.08)', borderLeft:'3px solid var(--primary)'}}>
-                <small>📝 Added by: <strong>{user?.full_name}</strong> (Moderator)</small>
+                <small>📝 {t.added_by}: <strong>{user?.full_name}</strong> ({lang === 'bn' ? 'মডারেটর' : 'Moderator'})</small>
               </div>
             )}
             <div className="grid-cards">
-              <div className="form-group"><label>Customer Name</label><input required className="input-field" value={form.customer_name} onChange={e=>setForm({...form, customer_name:e.target.value})} /></div>
-              <div className="form-group"><label>Courier Service</label><input required className="input-field" value={form.courier_name} onChange={e=>setForm({...form, courier_name:e.target.value})} /></div>
-              <div className="form-group"><label>Tracking ID</label><input className="input-field" value={form.tracking_number} onChange={e=>setForm({...form, tracking_number:e.target.value})} /></div>
-              <div className="form-group"><label>Cost (৳)</label><input type="number" required className="input-field" value={form.cost_price} onChange={e=>setForm({...form, cost_price:e.target.value})} /></div>
-              <div className="form-group"><label>COD Amount (৳)</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
+              <div className="form-group"><label>{t.customer_name}</label><input required className="input-field" value={form.customer_name} onChange={e=>setForm({...form, customer_name:e.target.value})} /></div>
+              <div className="form-group"><label>{t.courier_service_label}</label><input required className="input-field" value={form.courier_name} onChange={e=>setForm({...form, courier_name:e.target.value})} /></div>
+              <div className="form-group"><label>{t.tracking_id}</label><input className="input-field" value={form.tracking_number} onChange={e=>setForm({...form, tracking_number:e.target.value})} /></div>
+              <div className="form-group"><label>{t.buying_price_cost}</label><input type="number" required className="input-field" value={form.cost_price} onChange={e=>setForm({...form, cost_price:e.target.value})} /></div>
+              <div className="form-group"><label>{t.cod_amount}</label><input type="number" required className="input-field" value={form.selling_price} onChange={e=>setForm({...form, selling_price:e.target.value})} /></div>
             </div>
             <button type="submit" className="btn-primary" style={{marginTop:'1rem'}}>{t.save}</button>
           </form>
@@ -214,8 +214,8 @@ export default function ParcelsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th><th>Customer</th><th>Courier</th><th>Added By</th><th>Profit</th><th>Status</th>
-                {!isModerator && <th>Update Status</th>}
+                <th>{t.date}</th><th>{t.customer_name}</th><th>{t.courier}</th><th>{t.added_by}</th><th>{t.profit}</th><th>{t.status}</th>
+                {!isModerator && <th>{t.update_status}</th>}
               </tr>
             </thead>
             <tbody>
@@ -227,7 +227,7 @@ export default function ParcelsPage() {
                   <td>
                     {p.added_by_name
                       ? <span style={{background:'rgba(124,58,237,0.15)', color:'var(--primary)', padding:'2px 8px', borderRadius:'10px', fontSize:'0.82rem'}}>{p.added_by_name}</span>
-                      : <span style={{color:'var(--text-muted)'}}>Admin</span>}
+                      : <span style={{color:'var(--text-muted)'}}>{t.admin_label}</span>}
                   </td>
                   <td style={{color: p.profit >= 0 ? 'var(--success)' : 'var(--danger)', fontWeight:'bold'}}>
                     {p.profit >= 0 ? '+' : ''}৳{parseFloat(p.profit).toFixed(2)}
@@ -248,7 +248,7 @@ export default function ParcelsPage() {
                   )}
                 </tr>
               ))}
-              {parcels.length === 0 && <tr><td colSpan="7" style={{textAlign:'center', padding:'2rem', color:'var(--text-muted)'}}>No parcels found.</td></tr>}
+              {parcels.length === 0 && <tr><td colSpan="7" style={{textAlign:'center', padding:'2rem', color:'var(--text-muted)'}}>{lang === 'bn' ? 'কোনো পার্সেল পাওয়া যায়নি।' : 'No parcels found.'}</td></tr>}
             </tbody>
           </table>
         </div>

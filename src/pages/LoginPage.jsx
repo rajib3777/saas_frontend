@@ -39,14 +39,14 @@ export default function LoginPage() {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Authentication failed');
+      setError(err.response?.data?.error || t.auth_failed);
     }
   };
 
   return (
     <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg-color)'}}>
       <div className="glass-card animate-slide-up" style={{maxWidth:'450px', width:'100%', position:'relative'}}>
-        <Link to="/" style={{display:'inline-block', marginBottom:'1.5rem', color:'var(--text-muted)', textDecoration:'none', fontSize:'0.9rem'}}>← Back to Home</Link>
+        <Link to="/" style={{display:'inline-block', marginBottom:'1.5rem', color:'var(--text-muted)', textDecoration:'none', fontSize:'0.9rem'}}>← {t.back_home}</Link>
         <div style={{display:'flex', justifyContent:'space-between', marginBottom:'2rem'}}>
           <h2 style={{color:'var(--primary)'}}>{isLogin ? t.login : t.signup}</h2>
           <button className="btn-secondary" onClick={toggleLang} style={{padding:'4px 8px'}}>{lang === 'en' ? 'বাংলা' : 'English'}</button>
@@ -91,7 +91,7 @@ export default function LoginPage() {
         
         <p style={{marginTop:'1.5rem', textAlign:'center'}}>
           <button onClick={() => setIsLogin(!isLogin)} style={{background:'none', border:'none', color:'var(--secondary)', cursor:'pointer', fontSize:'0.9rem'}}>
-            {isLogin ? 'Need an account? Sign up' : 'Already have an account? Login'}
+            {isLogin ? t.need_account : t.already_account}
           </button>
         </p>
       </div>
