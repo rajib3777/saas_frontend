@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,6 +35,7 @@ export default function AdsPage() {
   const [form, setForm] = useState({ name: '', platform: 'Facebook', start_date: '', end_date: '', total_spend: '' });
   const { user } = useAuth();
   const t = useTranslation();
+  const { lang } = useLanguage();
 
   const load = async () => setAds((await api.get('shop/ads/')).data);
   useEffect(() => { load() }, []);

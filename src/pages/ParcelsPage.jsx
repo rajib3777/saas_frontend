@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement
 } from 'chart.js';
@@ -17,6 +18,7 @@ const statusStyle = {
 
 export default function ParcelsPage() {
   const t = useTranslation();
+  const { lang } = useLanguage();
   const { user } = useAuth();
   const isModerator = user?.role === 'moderator';
 

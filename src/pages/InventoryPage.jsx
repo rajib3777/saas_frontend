@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
 export default function InventoryPage() {
   const t = useTranslation();
+  const { lang } = useLanguage();
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [showAdd, setShowAdd] = useState(false);

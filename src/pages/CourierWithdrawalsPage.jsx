@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, Title, Tooltip, Legend
@@ -16,6 +18,8 @@ const BN_COURIERS = ['পাঠাও', 'স্টিডফাস্ট', 'র�
 
 export default function CourierWithdrawalsPage() {
   const { user } = useAuth();
+  const t = useTranslation();
+  const { lang } = useLanguage();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);

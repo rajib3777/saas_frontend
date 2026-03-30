@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AttendanceReport() {
   const t = useTranslation();
+  const { lang } = useLanguage();
   const [searchParams] = useSearchParams();
   const employeeId = searchParams.get('employee');
   

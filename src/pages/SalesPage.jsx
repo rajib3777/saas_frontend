@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,6 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export default function SalesPage() {
   const t = useTranslation();
+  const { lang } = useLanguage();
   const [sales, setSales] = useState([]);
   const [products, setProducts] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
