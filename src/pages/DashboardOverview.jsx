@@ -94,6 +94,7 @@ export default function DashboardOverview() {
     try {
       const d = new Date();
       await api.post('employees/attendance/', {
+         employee: user.employee_id,
          date: d.toISOString().split('T')[0],
          entry_time: d.toTimeString().split(' ')[0],
          location: checkIn.location,
