@@ -104,7 +104,7 @@ export default function EmployeesPage() {
                 <td>{new Date(emp.join_date).toLocaleDateString()}</td>
                 <td>
                   <div style={{display:'flex', gap:'0.5rem'}}>
-                    <button onClick={() => navigate(`/attendance-report?employee=${emp.id}`)} className="btn-secondary" style={{padding:'4px 8px', fontSize:'0.85rem'}}>📅 Attendance</button>
+                    <button onClick={() => navigate(`/dashboard/attendance-report?employee=${emp.id}`)} className="btn-secondary" style={{padding:'4px 8px', fontSize:'0.85rem'}}>📅 Attendance</button>
                     <button onClick={()=>deleteEmp(emp.id)} className="btn-secondary" style={{borderColor:'var(--danger)', color:'var(--danger)', padding:'4px 8px', fontSize:'0.85rem'}}>Delete</button>
                   </div>
                 </td>
