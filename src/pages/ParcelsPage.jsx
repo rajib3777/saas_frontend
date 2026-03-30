@@ -151,7 +151,7 @@ export default function ParcelsPage() {
                 <select className="input-field" value={filterMod} onChange={e=>setFilterMod(e.target.value)}>
                   <option value="">All Moderators</option>
                   {moderators.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                    <option key={m.id} value={m.user_account_id}>{m.name}</option>
                   ))}
                 </select>
               </div>
