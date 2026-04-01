@@ -14,6 +14,9 @@ const statusStyle = {
   delivered: { background: 'rgba(16,185,129,0.15)', color: '#10B981', border: '1px solid #10B981' },
   returned:  { background: 'rgba(239,68,68,0.15)',  color: '#EF4444', border: '1px solid #EF4444'  },
   pending:   { background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid #F59E0B'  },
+  in_transit: { background: 'rgba(59,130,246,0.15)', color: '#3B82F6', border: '1px solid #3B82F6' },
+  out_for_delivery: { background: 'rgba(168,85,247,0.15)', color: '#A855F7', border: '1px solid #A855F7' },
+  cancelled: { background: 'rgba(107,114,128,0.15)', color: '#6B7280', border: '1px solid #6B7280' },
 };
 
 export default function ParcelsPage() {
@@ -25,7 +28,7 @@ export default function ParcelsPage() {
   const [parcels, setParcels] = useState([]);
   const [moderators, setModerators] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ courier_name: '', tracking_number: '', customer_name: '', cost_price: '', selling_price: '', status: 'pending' });
+  const [form, setForm] = useState({ courier_name: 'Steadfast', tracking_number: '', customer_name: '', cost_price: '', selling_price: '', status: 'pending' });
 
   // Filters
   const [filterStatus, setFilterStatus]   = useState('');
@@ -59,7 +62,7 @@ export default function ParcelsPage() {
     e.preventDefault();
     await api.post('shop/parcels/', form);
     setShowAdd(false);
-    setForm({ courier_name: '', tracking_number: '', customer_name: '', cost_price: '', selling_price: '', status: 'pending' });
+    setForm({ courier_name: 'Steadfast', tracking_number: '', customer_name: '', cost_price: '', selling_price: '', status: 'pending' });
     load();
   };
 
@@ -72,6 +75,9 @@ export default function ParcelsPage() {
   const delivered = parcels.filter(p => p.status === 'delivered').length;
   const pending   = parcels.filter(p => p.status === 'pending').length;
   const returned  = parcels.filter(p => p.status === 'returned').length;
+  const inTransit = parcels.filter(p => p.status === 'in_transit').length;
+  const outForDel = parcels.filter(p => p.status === 'out_for_delivery').length;
+  const cancelled = parcels.filter(p => p.status === 'cancelled').length;
 
   return (
     <div>
@@ -120,7 +126,10 @@ export default function ParcelsPage() {
           {[
             { label: t.delivered, count: delivered, color: '#10B981' },
             { label: t.pending,   count: pending,   color: '#F59E0B' },
+            { label: t.in_transit, count: inTransit, color: '#3B82F6' },
+            { label: t.out_for_delivery, count: outForDel, color: '#A855F7' },
             { label: t.returned,  count: returned,  color: '#EF4444' },
+            { label: t.cancelled, count: cancelled, color: '#6B7280' },
             { label: t.total,     count: parcels.length, color: 'var(--primary)' },
           ].map(s => (
             <div key={s.label} className="glass-card animate-slide-up" style={{borderLeft:`4px solid ${s.color}`, padding:'1.2rem'}}>
@@ -139,8 +148,11 @@ export default function ParcelsPage() {
               <select className="input-field" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
                 <option value="">{t.all}</option>
                 <option value="pending">{t.pending}</option>
+                <option value="in_transit">{t.in_transit}</option>
+                <option value="out_for_delivery">{t.out_for_delivery}</option>
                 <option value="delivered">{t.delivered}</option>
                 <option value="returned">{t.returned}</option>
+                <option value="cancelled">{t.cancelled}</option>
               </select>
             </div>
             <div className="form-group">
@@ -170,8 +182,8 @@ export default function ParcelsPage() {
             <h3 style={{marginBottom:'1rem'}}>{t.status_distribution}</h3>
             <div style={{width:'240px'}}>
               <Pie data={{
-                labels: [t.delivered, t.pending, t.returned],
-                datasets: [{ data: [delivered, pending, returned], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }]
+                labels: [t.delivered, t.pending, t.in_transit, t.out_for_delivery, t.returned, t.cancelled],
+                datasets: [{ data: [delivered, pending, inTransit, outForDel, returned, cancelled], backgroundColor: ['#10B981','#F59E0B','#3B82F6','#A855F7','#EF4444','#6B7280'] }]
               }} />
             </div>
           </div>
@@ -225,7 +237,14 @@ export default function ParcelsPage() {
                 <tr key={p.id}>
                   <td>{new Date(p.date).toLocaleDateString()}</td>
                   <td style={{fontWeight:'bold'}}>{p.customer_name}</td>
-                  <td>{p.courier_name}<br/><small style={{color:'var(--text-muted)'}}>{p.tracking_number}</small></td>
+                  <td>{p.courier_name}<br/>
+                    <small style={{color:'var(--text-muted)'}}>{p.tracking_number}</small>
+                    {p.is_auto_tracking && p.last_sync_time && (
+                      <div style={{fontSize:'0.75rem', color:'var(--primary)', marginTop:'4px'}}>
+                        🔄 {t.last_synced}: {new Date(p.last_sync_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </div>
+                    )}
+                  </td>
                   <td>
                     {p.added_by_name
                       ? <span style={{background:'rgba(124,58,237,0.15)', color:'var(--primary)', padding:'2px 8px', borderRadius:'10px', fontSize:'0.82rem'}}>{p.added_by_name}</span>
@@ -241,11 +260,15 @@ export default function ParcelsPage() {
                   </td>
                   {!isModerator && (
                     <td>
-                      <select className="input-field" style={{padding:'4px 8px'}} value={p.status} onChange={e=>updateStatus(p.id, e.target.value)}>
+                      <select disabled={p.is_auto_tracking} className="input-field" style={{padding:'4px 8px'}} value={p.status} onChange={e=>updateStatus(p.id, e.target.value)}>
                         <option value="pending">Pending</option>
+                        <option value="in_transit">In Transit</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
                         <option value="delivered">Delivered</option>
                         <option value="returned">Returned</option>
+                        <option value="cancelled">Cancelled</option>
                       </select>
+                      {p.is_auto_tracking && <div style={{fontSize:'0.7rem', color:'var(--primary)', marginTop:'4px'}}>Auto-tracking enabled</div>}
                     </td>
                   )}
                 </tr>
